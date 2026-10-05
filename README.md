@@ -1,6 +1,6 @@
 # ds鲸鲸娘
 
-蓝发、白色褶边与蓝宝石蝴蝶结的小小桌面伙伴。
+若叶睦形态大肥鱼，欢迎提交 PR 或者加入修改。
 
 ![鲸鲸娘动作预览](codex/previews/jingjing-all-states.gif)
 
