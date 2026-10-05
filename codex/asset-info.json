@@ -1,0 +1,16 @@
+{
+  "name": "ds鲸鲸娘",
+  "platform": "codex",
+  "sprite_version": 2,
+  "file": "jingjing-spritesheet.png",
+  "width": 1536,
+  "height": 2288,
+  "columns": 8,
+  "rows": 11,
+  "cell_width": 192,
+  "cell_height": 208,
+  "animation_frames": 57,
+  "direction_frames": 16,
+  "total_frames": 73,
+  "sha256": "9ddd3bcaad42ee348f9afce7ed12a39c14541b40cfdbf654c2880017e70be6ee"
+}
