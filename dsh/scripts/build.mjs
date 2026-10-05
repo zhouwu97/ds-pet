@@ -1,0 +1,9 @@
+import { readFile, writeFile, mkdir } from 'node:fs/promises';
+const base = new URL('../', import.meta.url);
+const core = (await readFile(new URL('src/core.mjs', base), 'utf8')).replaceAll('export ', '');
+const client = (await readFile(new URL('src/client.mjs', base), 'utf8')).replace(/^import .*?;\n/s, '').replaceAll('export ', '');
+const css = await readFile(new URL('src/style.css', base), 'utf8');
+const body = `${core}\n${client}\nreturn { name, inject, apply };`;
+await mkdir(new URL('lib/', base), { recursive: true });
+await writeFile(new URL('lib/client.js', base), `window.__ModuleLoader__.load({id:"ds-jingjing-pet",factory:(require)=>{const PET_STYLE=${JSON.stringify(css)};\n${body}\n}});\n`);
+console.log('Built lib/client.js');

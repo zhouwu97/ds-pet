@@ -9,7 +9,7 @@
 | 目录 | 内容 | 状态 |
 | --- | --- | --- |
 | [codex](codex/) | Codex / ChatGPT Work Pets v2 宠物素材 | 已提供 |
-| [dsh](dsh/) | dsh 版本 | 预留，尚未提供适配素材 |
+| [dsh](dsh/) | DeepSeek Harness 插件：常驻宠物、定时用量与余额气泡 | 首版，可本地安装测试 |
 
 ## 下载
 
@@ -21,7 +21,7 @@
 
 下载 PNG 时，打开文件后选择 **Download raw file**，保留原尺寸和透明通道。
 
-本仓库提供宠物素材及预览。具体导入方式、动作切换和播放速度由客户端决定，详见 [Codex 版本说明](codex/README.md)。
+Codex 版本的动作切换和播放速度由客户端决定，详见 [Codex 版本说明](codex/README.md)。Harness 版本的安装与设置见 [dsh 使用说明](dsh/README.md)。
 
 ## 许可
 

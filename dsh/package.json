@@ -1,0 +1,16 @@
+{
+  "name": "ds-jingjing-pet",
+  "version": "0.1.0",
+  "description": "若叶睦形态大肥鱼：Harness 常驻宠物与定时用量气泡",
+  "type": "module",
+  "main": "src/host.mjs",
+  "exports": {".": "./src/host.mjs", "./client": "./lib/client.js", "./package.json": "./package.json"},
+  "files": ["src", "lib", "assets", "scripts", "tests", "cordis.patch.yml", "README.md", "DESIGN.md", "LICENSE"],
+  "license": "MIT",
+  "engines": {"node": ">=22"},
+  "dsh": {
+    "bundle": {"patch": "./cordis.patch.yml"},
+    "client": {"platform": "web", "inject": ["@deepseek-ai/dsh-client-connection"], "immediately": true}
+  },
+  "scripts": {"build": "node scripts/build.mjs", "test": "node --test tests/*.test.mjs", "check": "node --check src/host.mjs && node --check src/client.mjs && node --check src/core.mjs"}
+}
