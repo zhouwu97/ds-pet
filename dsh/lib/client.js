@@ -1,4 +1,4 @@
-window.__ModuleLoader__.load({id:"ds-jingjing-pet",factory:(require)=>{const PET_STYLE=":host { all: initial; color-scheme: light; font-family: \"Segoe UI\", \"Microsoft YaHei\", sans-serif; color: #243552; }\n* { box-sizing: border-box; }\nbutton, input, select { font: inherit; }\nbutton { cursor: pointer; }\n[hidden] { display: none !important; }\n.pet { --scale: 1; position: fixed; right: 28px; bottom: 24px; z-index: 10000; pointer-events: none; }\n.sprite { position: absolute; left: 0; top: 0; width: 192px; height: 208px; transform: scale(var(--scale)); transform-origin: top left; background-repeat: no-repeat; background-size: 1536px 2288px; background-color: transparent; border: 0; padding: 0; touch-action: none; pointer-events: auto; clip-path: polygon(0 38px, 103px 38px, 103px 0, 100% 0, 100% 100%, 0 100%); }\n.sprite:focus-visible { outline: 2px solid #648af0; outline-offset: -3px; }\n.resident { position: absolute; top: -10px; left: 8px; border: 2px solid #283d79; border-radius: 50%; padding: 5px 15px; background: #fff; color: #26396d; font-size: 15px; line-height: 20px; font-weight: 750; white-space: nowrap; }\n.resident::after { content: ''; position: absolute; bottom: -5px; left: 20px; width: 7px; height: 7px; background: white; border-bottom: 2px solid #283d79; border-left: 2px solid #283d79; transform: rotate(-25deg); }\n.report { position: fixed; max-width: min(310px, calc(100vw - 32px)); width: max-content; min-width: 190px; border: 1.5px solid #9cb3df; border-radius: 16px; padding: 14px 17px; font-size: 14px; line-height: 1.65; white-space: pre-line; background: #fff; box-shadow: 0 6px 24px #22396118; }\n.settings-trigger { position: absolute; bottom: 0; right: 0; pointer-events: auto; border: 1px solid #c5d2eb; border-radius: 50%; width: 29px; height: 29px; color: #536f9d; background: #fff; font-size: 17px; opacity: 0; transition: opacity .15s; }\n.pet:hover .settings-trigger, .settings-trigger:focus-visible { opacity: 1; }\n.settings { border: 1px solid #d3deee; border-radius: 20px; padding: 0; width: min(590px, calc(100vw - 32px)); max-height: calc(100vh - 40px); color: #243552; background: #fff; box-shadow: 0 20px 70px #162c5740; font-size: 14px; }\n.settings::backdrop { background: #1827483b; }\nheader { display: flex; justify-content: space-between; align-items: start; padding: 24px 26px 12px; }\nh2 { font-size: 22px; margin: 0 0 6px; }\nheader p { margin: 0; color: #6d7c93; }\n.close { border: none; font-size: 27px; background: transparent; color: #7b8798; padding: 0 3px; }\nform { padding: 4px 26px 24px; }\nfieldset { border: 0; padding: 18px 0 0; margin: 15px 0 0; border-top: 1px solid #e7ecf5; }\nlegend { font-weight: 700; padding: 0 8px 0 0; }\nlabel { display: flex; flex-direction: column; gap: 7px; font-size: 13px; }\n.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 15px; }\ninput:not([type=\"checkbox\"]):not([type=\"range\"]), select { width: 100%; height: 36px; border: 1px solid #ced9ea; border-radius: 8px; padding: 7px 9px; color: #243552; background: #fdfefe; min-width: 0; }\ninput:focus, select:focus { outline: 2px solid #a8c0ef; outline-offset: 1px; }\ninput[type=\"checkbox\"] { accent-color: #567ed2; }\n.check, .topics label { flex-direction: row; align-items: center; gap: 6px; }\n.topics { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }\n.hint { color: #728098; font-size: 12px; line-height: 1.6; margin: 0 0 13px; }\n.rate-row { margin-top: 12px; border: 1px solid #e1e9f4; background: #f8fafd; border-radius: 10px; padding: 12px; }\n.price-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin: 12px 0; }\n.secondary, .primary { border: 1px solid #d4deef; border-radius: 9px; padding: 8px 11px; background: #fff; color: #48668f; font-size: 13px; }\n.primary { background: #4f74c9; border-color: #4f74c9; color: #fff; }\n.primary:disabled { opacity: .5; cursor: wait; }\n.add-rate { margin-top: 12px; }\nfooter { display: flex; flex-wrap: wrap; justify-content: end; gap: 8px; margin-top: 14px; }\n.status { color: #697b98; font-size: 12px; line-height: 1.6; min-height: 20px; margin: 17px 0 0; }\ninput[type=\"range\"] { accent-color: #557bc9; width: 100%; }\n@media(max-width: 450px) { .grid, .price-grid { grid-template-columns: 1fr 1fr; } form { padding: 4px 18px 20px; } }\n@media(prefers-reduced-motion: reduce) { .settings-trigger { transition: none; } }\n";
+window.__ModuleLoader__.load({id:"ds-jingjing-pet",factory:(require)=>{const PET_STYLE=":host { all: initial; color-scheme: light; font-family: \"Segoe UI\", \"Microsoft YaHei\", sans-serif; color: #243552; }\n* { box-sizing: border-box; }\nbutton, input, select { font: inherit; }\nbutton { cursor: pointer; }\n[hidden] { display: none !important; }\n.pet { --scale: 1; position: fixed; right: 28px; bottom: 24px; z-index: 10000; pointer-events: none; }\n.sprite { position: absolute; left: 0; top: 0; width: 192px; height: 208px; transform: scale(var(--scale)); transform-origin: top left; background-repeat: no-repeat; background-size: 1536px 2288px; background-color: transparent; border: 0; padding: 0; touch-action: none; pointer-events: auto; clip-path: polygon(0 38px, 103px 38px, 103px 0, 100% 0, 100% 100%, 0 100%); }\n.sprite:focus-visible { outline: 2px solid #648af0; outline-offset: -3px; }\n.resident { position: fixed; width: max-content; min-width: 110px; max-width: min(310px, calc(100vw - 24px)); min-height: 48px; padding: 10px 22px 18px; color: #292e65; font-size: 15px; line-height: 20px; font-weight: 850; text-align: center; overflow-wrap: anywhere; }\n.bubble-outline { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }\n.bubble-outline path { fill: #fff; stroke: #292e65; stroke-width: 3; vector-effect: non-scaling-stroke; stroke-linejoin: round; }\n.bubble-text { position: relative; display: block; white-space: pre-line; }\n.resident.speaking { padding: 14px 34px 24px; font-size: 14px; line-height: 1.6; font-weight: 700; }\n.resident::before, .resident::after { content: ''; position: absolute; border: 3px solid #292e65; border-radius: 50%; background: #fff; transform: rotate(-12deg); }\n.resident::before { bottom: -12px; left: 29%; width: 15px; height: 12px; }\n.resident::after { bottom: -27px; left: 43%; width: 10px; height: 9px; }\n.settings-trigger { position: absolute; bottom: 0; right: 0; pointer-events: auto; border: 1px solid #c5d2eb; border-radius: 50%; width: 29px; height: 29px; color: #536f9d; background: #fff; font-size: 17px; opacity: 0; transition: opacity .15s; }\n.pet:hover .settings-trigger, .settings-trigger:focus-visible { opacity: 1; }\n.settings { border: 1px solid #d3deee; border-radius: 20px; padding: 0; width: min(590px, calc(100vw - 32px)); max-height: calc(100vh - 40px); color: #243552; background: #fff; box-shadow: 0 20px 70px #162c5740; font-size: 14px; }\n.settings::backdrop { background: #1827483b; }\nheader { display: flex; justify-content: space-between; align-items: start; padding: 24px 26px 12px; }\nh2 { font-size: 22px; margin: 0 0 6px; }\nheader p { margin: 0; color: #6d7c93; }\n.close { border: none; font-size: 27px; background: transparent; color: #7b8798; padding: 0 3px; }\nform { padding: 4px 26px 24px; }\nfieldset { border: 0; padding: 18px 0 0; margin: 15px 0 0; border-top: 1px solid #e7ecf5; }\nlegend { font-weight: 700; padding: 0 8px 0 0; }\nlabel { display: flex; flex-direction: column; gap: 7px; font-size: 13px; }\n.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 15px; }\ninput:not([type=\"checkbox\"]):not([type=\"range\"]), select { width: 100%; height: 36px; border: 1px solid #ced9ea; border-radius: 8px; padding: 7px 9px; color: #243552; background: #fdfefe; min-width: 0; }\ninput:focus, select:focus { outline: 2px solid #a8c0ef; outline-offset: 1px; }\ninput[type=\"checkbox\"] { accent-color: #567ed2; }\n.check, .topics label { flex-direction: row; align-items: center; gap: 6px; }\n.topics { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }\n.hint { color: #728098; font-size: 12px; line-height: 1.6; margin: 0 0 13px; }\n.rate-row { margin-top: 12px; border: 1px solid #e1e9f4; background: #f8fafd; border-radius: 10px; padding: 12px; }\n.price-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin: 12px 0; }\n.secondary, .primary { border: 1px solid #d4deef; border-radius: 9px; padding: 8px 11px; background: #fff; color: #48668f; font-size: 13px; }\n.primary { background: #4f74c9; border-color: #4f74c9; color: #fff; }\n.primary:disabled { opacity: .5; cursor: wait; }\n.add-rate { margin-top: 12px; }\nfooter { display: flex; flex-wrap: wrap; justify-content: end; gap: 8px; margin-top: 14px; }\n.status { color: #697b98; font-size: 12px; line-height: 1.6; min-height: 20px; margin: 17px 0 0; }\ninput[type=\"range\"] { accent-color: #557bc9; width: 100%; }\n@media(max-width: 450px) { .grid, .price-grid { grid-template-columns: 1fr 1fr; } form { padding: 4px 18px 20px; } }\n@media(prefers-reduced-motion: reduce) { .settings-trigger { transition: none; } }\n";
 /** Pure settings, token accounting and report selection shared by both faces. */
 const DEFAULT_SETTINGS = Object.freeze({
   enabled: true, intervalMinutes: 10, displaySeconds: 8, selection: 'random',
@@ -149,8 +149,10 @@ function apply(ctx) {
     const root = host.attachShadow({ mode: 'open' });
     root.innerHTML = `<style>${PET_STYLE}</style>
       <section class="pet" aria-label="鲸鲸娘桌宠">
-        <div class="report" role="status" aria-live="polite" hidden></div>
-        <div class="resident" aria-label="哦鲸鲸">哦鲸鲸</div>
+        <div class="resident" role="status" aria-live="polite">
+          <svg class="bubble-outline" viewBox="0 0 280 145" preserveAspectRatio="none" aria-hidden="true"><path d="M74 122 C32 111 7 91 7 65 C7 30 65 7 140 7 C215 7 273 30 273 65 C273 100 215 124 140 124 C125 124 113 124 103 123 C100 139 78 140 74 122 Z"/></svg>
+          <span class="bubble-text">哦鲸鲸…</span>
+        </div>
         <button class="sprite" aria-label="鲸鲸娘：点击播报，右键设置" title="点击播报 · 右键设置"></button>
         <button class="settings-trigger" aria-label="打开鲸鲸设置" title="鲸鲸设置">⚙</button>
       </section>
@@ -176,11 +178,11 @@ function apply(ctx) {
       </dialog>`;
     document.body.append(host);
     const $ = selector => root.querySelector(selector);
-    const pet = $('.pet'), sprite = $('.sprite'), bubble = $('.report'), panel = $('.settings'), form = $('form');
+    const pet = $('.pet'), sprite = $('.sprite'), bubble = $('.resident'), bubbleText = $('.bubble-text'), panel = $('.settings'), form = $('form');
     let settings = structuredClone(DEFAULT_SETTINGS), state, disposed = false, busy = false;
     let nextReport = performance.now() + settings.intervalMinutes * 60000, hideReport = 0;
     let previous, cursor = 0, frameId, pollTimer, currentAnimation = 'idle', animationStart = performance.now();
-    let transientUntil = 0, transientState = 'idle', dragging, moved = false, assetLoaded = false, assetBusy = false;
+    let transientUntil = 0, transientState = 'idle', dragging, moved = false, hovered = false, assetLoaded = false, assetBusy = false;
     const abort = new AbortController(), listeners = [];
     const on = (element, event, listener, options) => { element.addEventListener(event, listener, options); listeners.push(() => element.removeEventListener(event, listener, options)); };
     const call = async (endpoint, payload = { timezoneOffsetSeconds: -new Date().getTimezoneOffset() * 60 }) => {
@@ -189,11 +191,17 @@ function apply(ctx) {
       return response.value;
     };
     const status = text => { $('.status').textContent = text; };
-    const showReport = text => {
-      bubble.textContent = text; bubble.hidden = false; hideReport = performance.now() + settings.displaySeconds * 1000;
+    const positionBubble = () => {
       const box = pet.getBoundingClientRect();
-      bubble.style.left = `${Math.max(12, Math.min(innerWidth - bubble.offsetWidth - 12, box.right - bubble.offsetWidth))}px`;
-      bubble.style.top = `${Math.max(12, Math.min(innerHeight - bubble.offsetHeight - 12, box.top - bubble.offsetHeight - 22))}px`;
+      bubble.style.left = `${Math.max(12, Math.min(innerWidth - bubble.offsetWidth - 12, box.left + 8))}px`;
+      bubble.style.top = `${Math.max(12, Math.min(innerHeight - bubble.offsetHeight - 40, box.top + 4 - bubble.offsetHeight))}px`;
+    };
+    const showReport = text => {
+      bubbleText.textContent = text; bubble.classList.add('speaking'); hideReport = performance.now() + settings.displaySeconds * 1000;
+      positionBubble();
+    };
+    const restBubble = () => {
+      bubbleText.textContent = '哦鲸鲸…'; bubble.classList.remove('speaking'); hideReport = 0; positionBubble();
     };
     const loadAsset = async () => {
       if (assetBusy || assetLoaded || disposed) return;
@@ -216,6 +224,7 @@ function apply(ctx) {
         pet.style.top = `${Math.max(0, innerHeight - settings.size * 208 / 192) * settings.position.y}px`;
         pet.style.right = pet.style.bottom = 'auto';
       }
+      positionBubble();
     };
     const pull = async (force = false) => {
       if (busy || disposed) return;
@@ -238,14 +247,15 @@ function apply(ctx) {
     const animate = now => {
       if (disposed) return;
       if (!document.hidden && settings.enabled && now >= nextReport) { speak('timer'); nextReport = now + settings.intervalMinutes * 60000; }
-      if (!bubble.hidden && now >= hideReport) bubble.hidden = true;
-      const action = dragging ? (dragging.dx < 0 ? 'running-left' : 'running-right') : now < transientUntil ? transientState : state?.activity ?? 'idle';
+      if (hideReport && now >= hideReport) restBubble();
+      const action = dragging && moved ? (dragging.dx < 0 ? 'running-left' : 'running-right') : now < transientUntil ? transientState : hovered ? 'jumping' : state?.activity ?? 'idle';
       if (currentAnimation !== action) { currentAnimation = action; animationStart = now; }
       const animation = STATES[currentAnimation] ?? STATES.idle;
       const cycle = animation.durations.reduce((a, b) => a + b, 0);
       let elapsed = (now - animationStart) % cycle, column = 0;
       while (column < animation.durations.length - 1 && elapsed >= animation.durations[column]) { elapsed -= animation.durations[column++]; }
       sprite.style.backgroundPosition = `${-192 * column}px ${-208 * animation.row}px`;
+      sprite.dataset.animation = currentAnimation;
       frameId = requestAnimationFrame(animate);
     };
     const rateRow = (route = '', value = null) => {
@@ -297,6 +307,11 @@ function apply(ctx) {
       } catch (error) { status(error.message); }
       finally { button.disabled = false; }
     });
+    // Match Codex's avatar button: pointer hover loops the jump animation.
+    // An explicit transient action takes precedence; leaving restores activity.
+    on(sprite, 'pointerenter', event => { if (event.pointerType !== 'touch') hovered = true; });
+    on(sprite, 'pointerleave', () => { hovered = false; });
+    on(window, 'blur', () => { hovered = false; });
     on(sprite, 'pointerdown', event => {
       if (event.button !== 0) return;
       const box = pet.getBoundingClientRect(); moved = false;
@@ -312,6 +327,7 @@ function apply(ctx) {
       pet.style.right = pet.style.bottom = 'auto';
       pet.style.left = `${Math.max(0, Math.min(innerWidth - settings.size, dragging.left + dx))}px`;
       pet.style.top = `${Math.max(0, Math.min(innerHeight - settings.size * 208 / 192, dragging.top + dy))}px`;
+      positionBubble();
     });
     const endDrag = async event => {
       if (!dragging || event.pointerId !== dragging.pointer) return;
@@ -320,11 +336,11 @@ function apply(ctx) {
         const box = pet.getBoundingClientRect();
         const next = { ...settings, position: { x: box.left / Math.max(1, innerWidth - box.width), y: box.top / Math.max(1, innerHeight - box.height) } };
         try { settings = validateSettings(await call('settings', next)); } catch (error) { status(error.message); }
-      } else { transientState = 'waving'; transientUntil = performance.now() + 1500; speak(); }
+      } else if (event.type !== 'pointercancel') { transientState = 'waving'; transientUntil = performance.now() + 1500; speak(); }
     };
     on(sprite, 'pointerup', endDrag); on(sprite, 'pointercancel', endDrag);
     on(window, 'resize', positionPet);
-    on(document, 'visibilitychange', () => { if (!document.hidden) { nextReport = performance.now() + settings.intervalMinutes * 60000; void pull(); } });
+    on(document, 'visibilitychange', () => { if (document.hidden) hovered = false; else { nextReport = performance.now() + settings.intervalMinutes * 60000; void pull(); } });
     positionPet(); frameId = requestAnimationFrame(animate);
     void loadAsset();
     void pull(); pollTimer = setInterval(() => { if (!document.hidden) { void pull(); void loadAsset(); } }, 5000);

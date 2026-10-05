@@ -1,6 +1,6 @@
 {
   "name": "ds-jingjing-pet",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "若叶睦形态大肥鱼：Harness 常驻宠物与定时用量气泡",
   "type": "module",
   "main": "src/host.mjs",

@@ -6,9 +6,14 @@ button { cursor: pointer; }
 .pet { --scale: 1; position: fixed; right: 28px; bottom: 24px; z-index: 10000; pointer-events: none; }
 .sprite { position: absolute; left: 0; top: 0; width: 192px; height: 208px; transform: scale(var(--scale)); transform-origin: top left; background-repeat: no-repeat; background-size: 1536px 2288px; background-color: transparent; border: 0; padding: 0; touch-action: none; pointer-events: auto; clip-path: polygon(0 38px, 103px 38px, 103px 0, 100% 0, 100% 100%, 0 100%); }
 .sprite:focus-visible { outline: 2px solid #648af0; outline-offset: -3px; }
-.resident { position: absolute; top: -10px; left: 8px; border: 2px solid #283d79; border-radius: 50%; padding: 5px 15px; background: #fff; color: #26396d; font-size: 15px; line-height: 20px; font-weight: 750; white-space: nowrap; }
-.resident::after { content: ''; position: absolute; bottom: -5px; left: 20px; width: 7px; height: 7px; background: white; border-bottom: 2px solid #283d79; border-left: 2px solid #283d79; transform: rotate(-25deg); }
-.report { position: fixed; max-width: min(310px, calc(100vw - 32px)); width: max-content; min-width: 190px; border: 1.5px solid #9cb3df; border-radius: 16px; padding: 14px 17px; font-size: 14px; line-height: 1.65; white-space: pre-line; background: #fff; box-shadow: 0 6px 24px #22396118; }
+.resident { position: fixed; width: max-content; min-width: 110px; max-width: min(310px, calc(100vw - 24px)); min-height: 48px; padding: 10px 22px 18px; color: #292e65; font-size: 15px; line-height: 20px; font-weight: 850; text-align: center; overflow-wrap: anywhere; }
+.bubble-outline { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.bubble-outline path { fill: #fff; stroke: #292e65; stroke-width: 3; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+.bubble-text { position: relative; display: block; white-space: pre-line; }
+.resident.speaking { padding: 14px 34px 24px; font-size: 14px; line-height: 1.6; font-weight: 700; }
+.resident::before, .resident::after { content: ''; position: absolute; border: 3px solid #292e65; border-radius: 50%; background: #fff; transform: rotate(-12deg); }
+.resident::before { bottom: -12px; left: 29%; width: 15px; height: 12px; }
+.resident::after { bottom: -27px; left: 43%; width: 10px; height: 9px; }
 .settings-trigger { position: absolute; bottom: 0; right: 0; pointer-events: auto; border: 1px solid #c5d2eb; border-radius: 50%; width: 29px; height: 29px; color: #536f9d; background: #fff; font-size: 17px; opacity: 0; transition: opacity .15s; }
 .pet:hover .settings-trigger, .settings-trigger:focus-visible { opacity: 1; }
 .settings { border: 1px solid #d3deee; border-radius: 20px; padding: 0; width: min(590px, calc(100vw - 32px)); max-height: calc(100vh - 40px); color: #243552; background: #fff; box-shadow: 0 20px 70px #162c5740; font-size: 14px; }

@@ -23,8 +23,10 @@ export function apply(ctx) {
     const root = host.attachShadow({ mode: 'open' });
     root.innerHTML = `<style>${PET_STYLE}</style>
       <section class="pet" aria-label="鲸鲸娘桌宠">
-        <div class="report" role="status" aria-live="polite" hidden></div>
-        <div class="resident" aria-label="哦鲸鲸">哦鲸鲸</div>
+        <div class="resident" role="status" aria-live="polite">
+          <svg class="bubble-outline" viewBox="0 0 280 145" preserveAspectRatio="none" aria-hidden="true"><path d="M74 122 C32 111 7 91 7 65 C7 30 65 7 140 7 C215 7 273 30 273 65 C273 100 215 124 140 124 C125 124 113 124 103 123 C100 139 78 140 74 122 Z"/></svg>
+          <span class="bubble-text">哦鲸鲸…</span>
+        </div>
         <button class="sprite" aria-label="鲸鲸娘：点击播报，右键设置" title="点击播报 · 右键设置"></button>
         <button class="settings-trigger" aria-label="打开鲸鲸设置" title="鲸鲸设置">⚙</button>
       </section>
@@ -50,11 +52,11 @@ export function apply(ctx) {
       </dialog>`;
     document.body.append(host);
     const $ = selector => root.querySelector(selector);
-    const pet = $('.pet'), sprite = $('.sprite'), bubble = $('.report'), panel = $('.settings'), form = $('form');
+    const pet = $('.pet'), sprite = $('.sprite'), bubble = $('.resident'), bubbleText = $('.bubble-text'), panel = $('.settings'), form = $('form');
     let settings = structuredClone(DEFAULT_SETTINGS), state, disposed = false, busy = false;
     let nextReport = performance.now() + settings.intervalMinutes * 60000, hideReport = 0;
     let previous, cursor = 0, frameId, pollTimer, currentAnimation = 'idle', animationStart = performance.now();
-    let transientUntil = 0, transientState = 'idle', dragging, moved = false, assetLoaded = false, assetBusy = false;
+    let transientUntil = 0, transientState = 'idle', dragging, moved = false, hovered = false, assetLoaded = false, assetBusy = false;
     const abort = new AbortController(), listeners = [];
     const on = (element, event, listener, options) => { element.addEventListener(event, listener, options); listeners.push(() => element.removeEventListener(event, listener, options)); };
     const call = async (endpoint, payload = { timezoneOffsetSeconds: -new Date().getTimezoneOffset() * 60 }) => {
@@ -63,11 +65,17 @@ export function apply(ctx) {
       return response.value;
     };
     const status = text => { $('.status').textContent = text; };
-    const showReport = text => {
-      bubble.textContent = text; bubble.hidden = false; hideReport = performance.now() + settings.displaySeconds * 1000;
+    const positionBubble = () => {
       const box = pet.getBoundingClientRect();
-      bubble.style.left = `${Math.max(12, Math.min(innerWidth - bubble.offsetWidth - 12, box.right - bubble.offsetWidth))}px`;
-      bubble.style.top = `${Math.max(12, Math.min(innerHeight - bubble.offsetHeight - 12, box.top - bubble.offsetHeight - 22))}px`;
+      bubble.style.left = `${Math.max(12, Math.min(innerWidth - bubble.offsetWidth - 12, box.left + 8))}px`;
+      bubble.style.top = `${Math.max(12, Math.min(innerHeight - bubble.offsetHeight - 40, box.top + 4 - bubble.offsetHeight))}px`;
+    };
+    const showReport = text => {
+      bubbleText.textContent = text; bubble.classList.add('speaking'); hideReport = performance.now() + settings.displaySeconds * 1000;
+      positionBubble();
+    };
+    const restBubble = () => {
+      bubbleText.textContent = '哦鲸鲸…'; bubble.classList.remove('speaking'); hideReport = 0; positionBubble();
     };
     const loadAsset = async () => {
       if (assetBusy || assetLoaded || disposed) return;
@@ -90,6 +98,7 @@ export function apply(ctx) {
         pet.style.top = `${Math.max(0, innerHeight - settings.size * 208 / 192) * settings.position.y}px`;
         pet.style.right = pet.style.bottom = 'auto';
       }
+      positionBubble();
     };
     const pull = async (force = false) => {
       if (busy || disposed) return;
@@ -112,14 +121,15 @@ export function apply(ctx) {
     const animate = now => {
       if (disposed) return;
       if (!document.hidden && settings.enabled && now >= nextReport) { speak('timer'); nextReport = now + settings.intervalMinutes * 60000; }
-      if (!bubble.hidden && now >= hideReport) bubble.hidden = true;
-      const action = dragging ? (dragging.dx < 0 ? 'running-left' : 'running-right') : now < transientUntil ? transientState : state?.activity ?? 'idle';
+      if (hideReport && now >= hideReport) restBubble();
+      const action = dragging && moved ? (dragging.dx < 0 ? 'running-left' : 'running-right') : now < transientUntil ? transientState : hovered ? 'jumping' : state?.activity ?? 'idle';
       if (currentAnimation !== action) { currentAnimation = action; animationStart = now; }
       const animation = STATES[currentAnimation] ?? STATES.idle;
       const cycle = animation.durations.reduce((a, b) => a + b, 0);
       let elapsed = (now - animationStart) % cycle, column = 0;
       while (column < animation.durations.length - 1 && elapsed >= animation.durations[column]) { elapsed -= animation.durations[column++]; }
       sprite.style.backgroundPosition = `${-192 * column}px ${-208 * animation.row}px`;
+      sprite.dataset.animation = currentAnimation;
       frameId = requestAnimationFrame(animate);
     };
     const rateRow = (route = '', value = null) => {
@@ -171,6 +181,11 @@ export function apply(ctx) {
       } catch (error) { status(error.message); }
       finally { button.disabled = false; }
     });
+    // Match Codex's avatar button: pointer hover loops the jump animation.
+    // An explicit transient action takes precedence; leaving restores activity.
+    on(sprite, 'pointerenter', event => { if (event.pointerType !== 'touch') hovered = true; });
+    on(sprite, 'pointerleave', () => { hovered = false; });
+    on(window, 'blur', () => { hovered = false; });
     on(sprite, 'pointerdown', event => {
       if (event.button !== 0) return;
       const box = pet.getBoundingClientRect(); moved = false;
@@ -186,6 +201,7 @@ export function apply(ctx) {
       pet.style.right = pet.style.bottom = 'auto';
       pet.style.left = `${Math.max(0, Math.min(innerWidth - settings.size, dragging.left + dx))}px`;
       pet.style.top = `${Math.max(0, Math.min(innerHeight - settings.size * 208 / 192, dragging.top + dy))}px`;
+      positionBubble();
     });
     const endDrag = async event => {
       if (!dragging || event.pointerId !== dragging.pointer) return;
@@ -194,11 +210,11 @@ export function apply(ctx) {
         const box = pet.getBoundingClientRect();
         const next = { ...settings, position: { x: box.left / Math.max(1, innerWidth - box.width), y: box.top / Math.max(1, innerHeight - box.height) } };
         try { settings = validateSettings(await call('settings', next)); } catch (error) { status(error.message); }
-      } else { transientState = 'waving'; transientUntil = performance.now() + 1500; speak(); }
+      } else if (event.type !== 'pointercancel') { transientState = 'waving'; transientUntil = performance.now() + 1500; speak(); }
     };
     on(sprite, 'pointerup', endDrag); on(sprite, 'pointercancel', endDrag);
     on(window, 'resize', positionPet);
-    on(document, 'visibilitychange', () => { if (!document.hidden) { nextReport = performance.now() + settings.intervalMinutes * 60000; void pull(); } });
+    on(document, 'visibilitychange', () => { if (document.hidden) hovered = false; else { nextReport = performance.now() + settings.intervalMinutes * 60000; void pull(); } });
     positionPet(); frameId = requestAnimationFrame(animate);
     void loadAsset();
     void pull(); pollTimer = setInterval(() => { if (!document.hidden) { void pull(); void loadAsset(); } }, 5000);
