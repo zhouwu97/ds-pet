@@ -3,7 +3,7 @@ export const DEFAULT_SETTINGS = Object.freeze({
   enabled: true, intervalMinutes: 10, displaySeconds: 8, selection: 'random',
   topics: ['tokens', 'cost', 'balance', 'quota'], scope: 'today', size: 192,
   currency: 'CNY', rates: {}, monthlyBudget: null, tokenBudget: null,
-  position: null,
+  position: null, followPointer: true, reduceMotion: false,
 });
 const count = value => Number.isSafeInteger(value) && value >= 0;
 const bounded = (value, min, max) => Number.isFinite(value) && value >= min && value <= max;
@@ -13,6 +13,7 @@ export function validateSettings(value) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw Error('设置格式不正确');
   const s = { ...DEFAULT_SETTINGS, ...value };
   if (Object.keys(value).some(key => !Object.hasOwn(DEFAULT_SETTINGS, key))) throw Error('设置包含未知字段');
+  if (typeof s.followPointer !== 'boolean' || typeof s.reduceMotion !== 'boolean') throw Error('桌宠交互设置格式不正确');
   if (typeof s.enabled !== 'boolean' || !bounded(s.intervalMinutes, 1, 1440) || !bounded(s.displaySeconds, 3, 60)) throw Error('提醒间隔为 1–1440 分钟，展示时间为 3–60 秒');
   if (!['random', 'cycle'].includes(s.selection) || !['today', 'month', 'all'].includes(s.scope)) throw Error('播报方式或统计范围不正确');
   if (!Array.isArray(s.topics) || !s.topics.length || s.topics.some(v => !['tokens', 'cost', 'balance', 'quota'].includes(v)) || new Set(s.topics).size !== s.topics.length) throw Error('请至少选择一种播报内容');

@@ -1,19 +1,8 @@
+import { petFrame, petDirection, petPosition, petBubble } from './motion.js';
 import { DEFAULT_SETTINGS, validateSettings, chooseTopic, reportText } from './core.mjs';
 
 export const name = 'ds-jingjing-pet';
 export const inject = ['connection'];
-
-const STATES = {
-  idle: { row: 0, durations: [280, 110, 110, 140, 140, 320] },
-  'running-right': { row: 1, durations: Array(8).fill(100) },
-  'running-left': { row: 2, durations: Array(8).fill(100) },
-  waving: { row: 3, durations: Array(4).fill(160) },
-  jumping: { row: 4, durations: Array(5).fill(140) },
-  failed: { row: 5, durations: Array(8).fill(160) },
-  waiting: { row: 6, durations: Array(6).fill(180) },
-  running: { row: 7, durations: Array(6).fill(160) },
-  review: { row: 8, durations: Array(6).fill(160) },
-};
 
 /** Mount only this plugin's Shadow DOM; unload removes listeners and timers. */
 export function apply(ctx) {
@@ -27,8 +16,9 @@ export function apply(ctx) {
           <svg class="bubble-outline" viewBox="0 0 280 145" preserveAspectRatio="none" aria-hidden="true"><path d="M74 122 C32 111 7 91 7 65 C7 30 65 7 140 7 C215 7 273 30 273 65 C273 100 215 124 140 124 C125 124 113 124 103 123 C100 139 78 140 74 122 Z"/></svg>
           <span class="bubble-text">哦鲸鲸…</span>
         </div>
-        <button class="sprite" aria-label="鲸鲸娘：点击播报，右键设置" title="点击播报 · 右键设置"></button>
+        <button class="sprite" aria-label="鲸鲸娘：点击播报，方向键移动，右键设置" title="点击播报 · 右键设置"></button>
         <button class="settings-trigger" aria-label="打开鲸鲸设置" title="鲸鲸设置">⚙</button>
+        <div class="pet-toolbar" role="group" aria-label="桌宠互动"><button data-pet-action="waving" title="打招呼" aria-label="打招呼">招手</button><button data-pet-action="jumping" title="投喂" aria-label="投喂">投喂</button><button class="sleep-toggle" aria-pressed="false">休息</button></div>
       </section>
       <dialog class="settings" aria-label="鲸鲸设置">
         <header><div><h2>鲸鲸设置</h2><p>让大肥鱼按你的节奏提醒</p></div><button class="close" aria-label="关闭设置">×</button></header>
@@ -46,7 +36,7 @@ export function apply(ctx) {
             <label>货币<select name="currency"><option value="CNY">人民币 CNY</option><option value="USD">美元 USD</option></select></label>
             <div class="rates"></div><button class="add-rate secondary" type="button">添加模型单价</button>
           </fieldset>
-          <fieldset><legend>宠物外观</legend><label><span>大小 <span class="size-value"></span> px</span><input name="size" type="range" min="128" max="320" step="1"></label><p class="hint">拖动宠物即可改变位置。「哦鲸鲸」气泡始终显示。</p></fieldset>
+          <fieldset><legend>宠物外观</legend><label><span>大小 <span class="size-value"></span> px</span><input name="size" type="range" min="128" max="320" step="1"></label><p class="hint">拖动移动 · 悬停跳跃 · 点击挥手播报 · 方向键微调位置</p><label class="check"><input name="followPointer" type="checkbox">闲暇时看向鼠标</label><label class="check"><input name="reduceMotion" type="checkbox">减少动态效果</label><div class="pet-actions"><button type="button" class="secondary" data-pet-action="waving">打招呼</button><button type="button" class="secondary" data-pet-action="jumping">投喂</button><button type="button" class="secondary reset-position">回到原位</button></div></fieldset>
           <p class="status" role="status"></p><footer><button type="button" class="refresh secondary">刷新用量与余额</button><button type="button" class="speak secondary">立即播报</button><button type="submit" class="primary">保存设置</button></footer>
         </form>
       </dialog>`;
@@ -57,6 +47,9 @@ export function apply(ctx) {
     let nextReport = performance.now() + settings.intervalMinutes * 60000, hideReport = 0;
     let previous, cursor = 0, frameId, pollTimer, currentAnimation = 'idle', animationStart = performance.now();
     let transientUntil = 0, transientState = 'idle', dragging, moved = false, hovered = false, assetLoaded = false, assetBusy = false;
+    let sleeping = false, previewSize = null;
+    let gaze = null, gazeUntil = 0, lastPointerX = 0, revision = 0, pendingSaves = 0, positionQueue = Promise.resolve();
+    const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
     const abort = new AbortController(), listeners = [];
     const on = (element, event, listener, options) => { element.addEventListener(event, listener, options); listeners.push(() => element.removeEventListener(event, listener, options)); };
     const call = async (endpoint, payload = { timezoneOffsetSeconds: -new Date().getTimezoneOffset() * 60 }) => {
@@ -67,7 +60,8 @@ export function apply(ctx) {
     const status = text => { $('.status').textContent = text; };
     const positionBubble = () => {
       const box = pet.getBoundingClientRect();
-      bubble.style.left = `${Math.max(12, Math.min(innerWidth - bubble.offsetWidth - 12, box.left + 8))}px`;
+      const point = petBubble({ x: box.left, y: box.top, width: box.width, height: box.height }, bubble.offsetWidth, bubble.offsetHeight, innerWidth, innerHeight);
+      bubble.style.left = `${point.x}px`;
       bubble.style.top = `${Math.max(12, Math.min(innerHeight - bubble.offsetHeight - 40, box.top + 4 - bubble.offsetHeight))}px`;
     };
     const showReport = text => {
@@ -75,7 +69,7 @@ export function apply(ctx) {
       positionBubble();
     };
     const restBubble = () => {
-      bubbleText.textContent = '哦鲸鲸…'; bubble.classList.remove('speaking'); hideReport = 0; positionBubble();
+      bubbleText.textContent = sleeping ? '休息一下，等你回来…' : '哦鲸鲸…'; bubble.classList.remove('speaking'); hideReport = 0; positionBubble();
     };
     const loadAsset = async () => {
       if (assetBusy || assetLoaded || disposed) return;
@@ -90,24 +84,28 @@ export function apply(ctx) {
       finally { assetBusy = false; }
     };
     const positionPet = () => {
-      pet.style.setProperty('--scale', settings.size / 192);
-      pet.style.width = `${settings.size}px`;
-      pet.style.height = `${settings.size * 208 / 192}px`;
+      if (dragging) return;
+      const size = Math.min(previewSize ?? settings.size, innerWidth, Math.max(128, (innerHeight - 120) * 192 / 208));
+      pet.style.setProperty('--scale', size / 192);
+      pet.style.width = `${size}px`;
+      pet.style.height = `${size * 208 / 192}px`;
       if (settings.position) {
-        pet.style.left = `${Math.max(0, innerWidth - settings.size) * settings.position.x}px`;
-        pet.style.top = `${Math.max(0, innerHeight - settings.size * 208 / 192) * settings.position.y}px`;
+        pet.style.left = `${Math.max(0, innerWidth - size) * settings.position.x}px`;
+        pet.style.top = `${Math.max(0, innerHeight - size * 208 / 192 - 40) * settings.position.y}px`;
         pet.style.right = pet.style.bottom = 'auto';
-      }
+      } else { pet.style.left = pet.style.top = 'auto'; pet.style.right = '20px'; pet.style.bottom = '58px'; }
       positionBubble();
     };
     const pull = async (force = false) => {
       if (busy || disposed) return;
       busy = true;
+      const requestedRevision = revision;
       try {
         const value = await call(force ? 'refresh' : 'state');
         if (disposed) return;
         if (!state || value.settings.intervalMinutes !== settings.intervalMinutes) nextReport = performance.now() + value.settings.intervalMinutes * 60000;
-        state = value; settings = validateSettings(value.settings); positionPet();
+        state = value;
+        if (!dragging && !pendingSaves && requestedRevision === revision && !panel.open) { settings = validateSettings(value.settings); positionPet(); }
         if (panel.open) status(`用量${state.usageStatus === 'ready' ? '已更新' : state.usageStatus === 'loading' ? '读取中' : '部分暂不可用'} · ${state.balance.status === 'ready' ? '账户余额已更新' : '账户余额暂不可用'}`);
       } catch (error) { if (!disposed) status(`暂时无法刷新：${error.message}`); }
       finally { busy = false; }
@@ -119,17 +117,18 @@ export function apply(ctx) {
       previous = topic; showReport(reportText(topic, state));
     };
     const animate = now => {
-      if (disposed) return;
+      frameId = 0;
+      if (disposed || document.hidden) return;
       if (!document.hidden && settings.enabled && now >= nextReport) { speak('timer'); nextReport = now + settings.intervalMinutes * 60000; }
       if (hideReport && now >= hideReport) restBubble();
-      const action = dragging && moved ? (dragging.dx < 0 ? 'running-left' : 'running-right') : now < transientUntil ? transientState : hovered ? 'jumping' : state?.activity ?? 'idle';
+      const action = dragging && moved ? (dragging.dx < 0 ? 'running-left' : 'running-right') : sleeping ? 'sleep' : now < transientUntil ? transientState : hovered ? 'jumping' : state?.activity ?? 'idle';
       if (currentAnimation !== action) { currentAnimation = action; animationStart = now; }
-      const animation = STATES[currentAnimation] ?? STATES.idle;
-      const cycle = animation.durations.reduce((a, b) => a + b, 0);
-      let elapsed = (now - animationStart) % cycle, column = 0;
-      while (column < animation.durations.length - 1 && elapsed >= animation.durations[column]) { elapsed -= animation.durations[column++]; }
-      sprite.style.backgroundPosition = `${-192 * column}px ${-208 * animation.row}px`;
+      let cell = sleeping && !dragging ? { row: 0, column: 3 } : petFrame(currentAnimation, now - animationStart, reducedMotion.matches || settings.reduceMotion);
+      if (action === 'idle' && settings.followPointer && !reducedMotion.matches && !settings.reduceMotion && gaze && now < gazeUntil) cell = gaze;
+      const nextPosition = `${-192 * cell.column}px ${-208 * cell.row}px`;
+      if (sprite.style.backgroundPosition !== nextPosition) sprite.style.backgroundPosition = nextPosition;
       sprite.dataset.animation = currentAnimation;
+      sprite.dataset.row = String(cell.row);
       frameId = requestAnimationFrame(animate);
     };
     const rateRow = (route = '', value = null) => {
@@ -143,20 +142,23 @@ export function apply(ctx) {
     const openSettings = () => {
       for (const key of ['intervalMinutes', 'displaySeconds', 'selection', 'scope', 'size', 'currency']) form.elements[key].value = settings[key];
       form.elements.enabled.checked = settings.enabled;
+      form.elements.followPointer.checked = settings.followPointer;
+      form.elements.reduceMotion.checked = settings.reduceMotion;
       for (const key of ['monthlyBudget', 'tokenBudget']) form.elements[key].value = settings[key] ?? '';
       for (const input of root.querySelectorAll('[name="topic"]')) input.checked = settings.topics.includes(input.value);
       $('.size-value').textContent = settings.size;
       $('.rates').replaceChildren();
       for (const route of new Set([...(state?.routes ?? []), ...Object.keys(settings.rates)])) rateRow(route, settings.rates[route]);
-      panel.showModal(); status('设置保存在本机。花费为估算，余额来自账户接口。');
+      hovered = false; gaze = null; if (!panel.open) panel.showModal(); status('设置保存在本机。花费为估算，余额来自账户接口。');
     };
     on($('.settings-trigger'), 'click', openSettings);
     on(sprite, 'contextmenu', event => { event.preventDefault(); openSettings(); });
     on($('.close'), 'click', () => panel.close());
+    on(panel, 'close', () => { previewSize = null; positionPet(); $('.settings-trigger').focus(); });
     on($('.add-rate'), 'click', () => rateRow());
     on($('.speak'), 'click', () => speak());
     on($('.refresh'), 'click', () => pull(true));
-    on(form.elements.size, 'input', () => { $('.size-value').textContent = form.elements.size.value; });
+    on(form.elements.size, 'input', () => { $('.size-value').textContent = form.elements.size.value; previewSize = Number(form.elements.size.value); positionPet(); });
     on(form, 'submit', async event => {
       event.preventDefault();
       const button = $('.primary'); button.disabled = true;
@@ -169,52 +171,88 @@ export function apply(ctx) {
           if (!route || route in rates || prices.some(input => input.value === '')) throw Error('请为每个模型填写四项单价；未使用的缓存写入可填 0');
           rates[route] = Object.fromEntries(prices.map(input => [input.dataset.rate, Number(input.value)]));
         }
-        const next = validateSettings({ ...settings, enabled: data.has('enabled'),
+        const next = validateSettings({ ...settings, enabled: data.has('enabled'), followPointer: data.has('followPointer'), reduceMotion: data.has('reduceMotion'),
           topics: data.getAll('topic'), selection: data.get('selection'), scope: data.get('scope'), currency: data.get('currency'), rates,
           intervalMinutes: Number(data.get('intervalMinutes')), displaySeconds: Number(data.get('displaySeconds')), size: Number(data.get('size')),
           monthlyBudget: data.get('monthlyBudget') === '' ? null : Number(data.get('monthlyBudget')),
           tokenBudget: data.get('tokenBudget') === '' ? null : Number(data.get('tokenBudget')),
         });
+        revision++;
+        await positionQueue;
         settings = validateSettings(await call('settings', next));
         nextReport = performance.now() + settings.intervalMinutes * 60000; previous = undefined; cursor = 0;
         positionPet(); await pull(); status('已保存，新的间隔从现在开始计时。');
       } catch (error) { status(error.message); }
       finally { button.disabled = false; }
     });
-    // Match Codex's avatar button: pointer hover loops the jump animation.
-    // An explicit transient action takes precedence; leaving restores activity.
-    on(sprite, 'pointerenter', event => { if (event.pointerType !== 'touch') hovered = true; });
+    const transient = (action, text) => { sleeping = false; $('.sleep-toggle').textContent = '休息'; $('.sleep-toggle').setAttribute('aria-pressed', 'false'); transientState = action; transientUntil = performance.now() + 1500; if (text) showReport(text); };
+    const persistPosition = position => {
+      settings = { ...settings, position }; revision++; pendingSaves++;
+      positionQueue = positionQueue.catch(() => {}).then(async () => {
+        if (disposed) return;
+        try { await call('settings', { ...settings, position }); }
+        catch (error) { if (!disposed) { status(error.message); showReport('位置暂时没保存成功，可以再拖动重试。'); } }
+        finally { pendingSaves--; }
+      });
+      return positionQueue;
+    };
+    const saveCurrentPosition = () => {
+      const box = pet.getBoundingClientRect();
+      return persistPosition({ x: Math.max(0, Math.min(1, box.left / Math.max(1, innerWidth - box.width))), y: Math.max(0, Math.min(1, box.top / Math.max(1, innerHeight - box.height - 40))) });
+    };
+    const move = (x, y) => {
+      const box = pet.getBoundingClientRect();
+      const point = petPosition(x, y, innerWidth, Math.max(0, innerHeight - 40), box.width, box.height, Math.min(80, innerHeight / 4));
+      pet.style.right = pet.style.bottom = 'auto'; pet.style.left = `${point.x}px`; pet.style.top = `${point.y}px`; positionBubble();
+    };
+    const cancelDrag = () => {
+      const active = dragging; dragging = undefined; hovered = false; gaze = null;
+      if (active && sprite.hasPointerCapture(active.pointer)) sprite.releasePointerCapture(active.pointer);
+      if (active && moved) void saveCurrentPosition();
+    };
+    for (const button of root.querySelectorAll('[data-pet-action]')) on(button, 'click', () => { if (panel.open) panel.close(); transient(button.dataset.petAction, button.dataset.petAction === 'jumping' ? '啊呜，谢谢投喂！' : '在呢，今天也要开心呀！'); });
+    on($('.sleep-toggle'), 'click', () => { sleeping = !sleeping; transientUntil = 0; hovered = false; gaze = null; $('.sleep-toggle').textContent = sleeping ? '唤醒' : '休息'; $('.sleep-toggle').setAttribute('aria-pressed', String(sleeping)); restBubble(); });
+    on($('.reset-position'), 'click', () => { cancelDrag(); void persistPosition(null); positionPet(); transient('waving', '回到小窝啦'); });
+    on(sprite, 'pointerenter', event => { if (event.pointerType !== 'touch' && !panel.open) hovered = true; });
     on(sprite, 'pointerleave', () => { hovered = false; });
-    on(window, 'blur', () => { hovered = false; });
+    on(window, 'blur', cancelDrag);
+    on(document, 'pointermove', event => {
+      if (event.pointerType === 'touch' || dragging || panel.open || document.hidden || !settings.followPointer) return;
+      const box = sprite.getBoundingClientRect();
+      gaze = petDirection(event.clientX - box.left - box.width / 2, event.clientY - box.top - box.height * .4);
+      gazeUntil = performance.now() + 2500;
+    }, { passive: true });
+    on(document, 'pointerout', event => { if (!event.relatedTarget) gaze = null; });
     on(sprite, 'pointerdown', event => {
-      if (event.button !== 0) return;
-      const box = pet.getBoundingClientRect(); moved = false;
+      if (event.button !== 0 || dragging) return;
+      const box = pet.getBoundingClientRect(); moved = false; lastPointerX = event.clientX;
       dragging = { pointer: event.pointerId, x: event.clientX, y: event.clientY, left: box.left, top: box.top, dx: 0 };
       sprite.setPointerCapture(event.pointerId);
     });
     on(sprite, 'pointermove', event => {
-      if (!dragging) return;
-      const dx = event.clientX - dragging.x, dy = event.clientY - dragging.y;
-      if (Math.abs(dx) + Math.abs(dy) > 4) moved = true;
-      dragging.dx = dx;
-      if (!moved) return;
-      pet.style.right = pet.style.bottom = 'auto';
-      pet.style.left = `${Math.max(0, Math.min(innerWidth - settings.size, dragging.left + dx))}px`;
-      pet.style.top = `${Math.max(0, Math.min(innerHeight - settings.size * 208 / 192, dragging.top + dy))}px`;
-      positionBubble();
-    });
-    const endDrag = async event => {
       if (!dragging || event.pointerId !== dragging.pointer) return;
-      dragging = undefined;
-      if (moved) {
-        const box = pet.getBoundingClientRect();
-        const next = { ...settings, position: { x: box.left / Math.max(1, innerWidth - box.width), y: box.top / Math.max(1, innerHeight - box.height) } };
-        try { settings = validateSettings(await call('settings', next)); } catch (error) { status(error.message); }
-      } else if (event.type !== 'pointercancel') { transientState = 'waving'; transientUntil = performance.now() + 1500; speak(); }
-    };
-    on(sprite, 'pointerup', endDrag); on(sprite, 'pointercancel', endDrag);
-    on(window, 'resize', positionPet);
-    on(document, 'visibilitychange', () => { if (document.hidden) hovered = false; else { nextReport = performance.now() + settings.intervalMinutes * 60000; void pull(); } });
+      const dx = event.clientX - dragging.x, dy = event.clientY - dragging.y;
+      if (Math.hypot(dx, dy) > 5) moved = true;
+      dragging.dx = event.clientX - lastPointerX; lastPointerX = event.clientX;
+      if (moved) move(dragging.left + dx, dragging.top + dy);
+    });
+    on(sprite, 'pointerup', event => {
+      if (!dragging || event.pointerId !== dragging.pointer) return;
+      cancelDrag();
+    });
+    on(sprite, 'click', () => { if (moved) { moved = false; return; } transient('waving'); speak(); });
+    on(sprite, 'pointercancel', cancelDrag);
+    on(sprite, 'lostpointercapture', () => { if (dragging) cancelDrag(); });
+    on(sprite, 'keydown', event => {
+      const delta = { ArrowLeft: [-12,0], ArrowRight: [12,0], ArrowUp: [0,-12], ArrowDown: [0,12] }[event.key];
+      if (delta) { event.preventDefault(); const box = pet.getBoundingClientRect(); move(box.left + delta[0], box.top + delta[1]); void saveCurrentPosition(); }
+    });
+    on(window, 'resize', () => { cancelDrag(); positionPet(); const box = pet.getBoundingClientRect(); move(box.left, box.top); });
+    on(document, 'visibilitychange', () => {
+      cancelDrag();
+      if (document.hidden) { cancelAnimationFrame(frameId); frameId = 0; }
+      else { nextReport = performance.now() + settings.intervalMinutes * 60000; animationStart = performance.now(); if (!frameId) frameId = requestAnimationFrame(animate); void pull(); }
+    });
     positionPet(); frameId = requestAnimationFrame(animate);
     void loadAsset();
     void pull(); pollTimer = setInterval(() => { if (!document.hidden) { void pull(); void loadAsset(); } }, 5000);

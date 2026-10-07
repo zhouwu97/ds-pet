@@ -44,3 +44,12 @@ footer { display: flex; flex-wrap: wrap; justify-content: end; gap: 8px; margin-
 input[type="range"] { accent-color: #557bc9; width: 100%; }
 @media(max-width: 450px) { .grid, .price-grid { grid-template-columns: 1fr 1fr; } form { padding: 4px 18px 20px; } }
 @media(prefers-reduced-motion: reduce) { .settings-trigger { transition: none; } }
+
+.pet-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.check{margin-top:10px}
+.sprite{cursor:grab}.sprite:active{cursor:grabbing}.pet:focus-within .settings-trigger{opacity:1}
+@media(hover:none){.settings-trigger{opacity:1;min-width:36px;min-height:36px}}
+
+.pet-toolbar{position:absolute;top:calc(100% + 5px);left:50%;transform:translateX(-50%);display:flex;gap:2px;pointer-events:auto;padding:3px;background:#f6f8fff2;border:1px solid #c5d2eb;border-radius:12px;box-shadow:0 4px 16px #162c5714;opacity:0;transition:opacity .15s;white-space:nowrap}
+.pet:hover .pet-toolbar,.pet:focus-within .pet-toolbar{opacity:1}.pet-toolbar button{background:transparent;border:0;border-radius:8px;padding:4px 9px;font-size:11px;color:#48638e}.pet-toolbar button:hover{background:#dbe5fb}.pet-toolbar button:focus-visible{outline:2px solid #648af0;outline-offset:1px}
+@media(hover:none){.pet-toolbar{opacity:1}.pet-toolbar button{min-height:30px}}
+@media(prefers-reduced-motion:reduce){.pet-toolbar{transition:none}}
